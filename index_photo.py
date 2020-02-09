@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[94]:
+# In[7]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -21,7 +21,7 @@ y = stock_data.loc[(count_s-rangeday):, ['終値']]
 plt.plot(x, y)
 
 
-# In[98]:
+# In[11]:
 
 
 #解析銘柄の13日平均移動線を求める
@@ -47,13 +47,19 @@ ax.plot(x, y, color='green')
 ax.plot(x, y2, color='black')
 ax.plot(x, y3, color='black')
 for t in range(0, len(x)-1):
-    x2 = np.arange(t, t+1.01, 0.01) 
+    x2 = np.arange(t, t+1, 0.01)
     m_y21 = (y2[t+1]-y2[t])
     b_y21 = -m_y21*x[t] + y2[t]
     m_y31 = (y3[t+1]-y3[t])
     b_y31 = -m_y31*x[t] + y3[t]
     y21 = m_y21*x2 + b_y21
     y31 = m_y31*x2 + b_y31
+    intersection_x = -(b_y21 - b_y31) / (m_y21 - m_y31)
+    intersection_y = m_y21*intersection_x + b_y21
+    if (t <= intersection_x and intersection_x <= t+1 and y2[t]>y3[t]):
+        ax.plot(intersection_x, intersection_y, marker='o', markersize=7, color='red')
+    elif (t <= intersection_x and intersection_x <= t+1 and y2[t]<y3[t]):
+        ax.plot(intersection_x, intersection_y, marker='o', markersize=7, color='blue')
     ax.fill_between(x2, y21, y31, where=y21 <=y31, facecolor='red', alpha=0.8)
     ax.fill_between(x2, y21, y31, where=y21 >y31, facecolor='blue', alpha=0.8)
 
@@ -370,7 +376,7 @@ plt.plot(x, y13, color='blue')
 plt.plot(x, y14, color='red')
 
 
-# In[92]:
+# In[5]:
 
 
 x = [0, 1, 2, 3, 4, 5, 6]
@@ -387,8 +393,11 @@ for t in range(0, len(x)-1):
     b_y21 = -m_y21*x[t] + y2[t]
     y11 = m_y11*x2 + b_y11
     y21 = m_y21*x2 + b_y21
+    intersection_x = -(b_y11 - b_y21) / (m_y11 - m_y21)
+    intersection_y = m_y11*intersection_x + b_y11
+    if (t <= intersection_x and intersection_x <= t+1):
+        ax.plot(intersection_x, intersection_y, marker='o', markersize=10, color='green')
     ax.fill_between(x2, y11, y21, where=y21 >y11, facecolor='yellow', alpha=0.5)
     ax.fill_between(x2, y11, y21, where=y21 <=y11, facecolor='red', alpha=0.5)
 ax.set_title('Fill Between')
 plt.show()
-
