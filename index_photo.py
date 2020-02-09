@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[94]:
 
 
 get_ipython().run_line_magic('matplotlib', 'inline')
@@ -14,12 +14,14 @@ stock_data = pd.read_csv("1321_tech4.csv", encoding="shift-jis")
 print(stock_data)
 print(stock_data.shape)
 count_s = len(stock_data)
-x = range(30)
-y = stock_data.loc[(count_s-30):, ['終値']]
+rangeday = 30
+x = np.arange(0,rangeday, 1)
+print(x)
+y = stock_data.loc[(count_s-rangeday):, ['終値']]
 plt.plot(x, y)
 
 
-# In[12]:
+# In[98]:
 
 
 #解析銘柄の13日平均移動線を求める
@@ -29,7 +31,7 @@ for i in range(12,count_s-1):
     for s in range(0, 13):
         sum13 += float(stock_data.loc[i-s, ['調整後終値']])
     average_13day.append(float(sum13)/float(13))
-y2 = average_13day[(len(average_13day)-30):]
+y2 = average_13day[(len(average_13day)-rangeday):]
 #解析銘柄の5日平均移動線を求める
 average_5day = []
 for i in range(12,count_s-1):
@@ -37,16 +39,26 @@ for i in range(12,count_s-1):
     for s in range(0, 5):
         sum5 += float(stock_data.loc[i-s, ['調整後終値']])
     average_5day.append(float(sum5)/float(5))
-y3 = average_5day[(len(average_5day)-30):]
+y3 = average_5day[(len(average_5day)-rangeday):]
 plt.rcParams['xtick.direction'] = 'in'
 plt.rcParams['ytick.direction'] = 'in'
-plt.plot(x, y2, color='black')
-plt.plot(x, y3, color='black')
-plt.fill_between(x,y2,y3, where=y3 >y2, facecolor='red', alpha=0.5)
-plt.fill_between(x,y2,y3, where=y2 >y3, facecolor='blue',alpha=0.5)
+fig, ax= plt.subplots()
+ax.plot(x, y, color='green')
+ax.plot(x, y2, color='black')
+ax.plot(x, y3, color='black')
+for t in range(0, len(x)-1):
+    x2 = np.arange(t, t+1.01, 0.01) 
+    m_y21 = (y2[t+1]-y2[t])
+    b_y21 = -m_y21*x[t] + y2[t]
+    m_y31 = (y3[t+1]-y3[t])
+    b_y31 = -m_y31*x[t] + y3[t]
+    y21 = m_y21*x2 + b_y21
+    y31 = m_y31*x2 + b_y31
+    ax.fill_between(x2, y21, y31, where=y21 <=y31, facecolor='red', alpha=0.8)
+    ax.fill_between(x2, y21, y31, where=y21 >y31, facecolor='blue', alpha=0.8)
 
 
-# In[4]:
+# In[23]:
 
 
 #RSIの作成
@@ -62,11 +74,11 @@ for i in range(0, count_s-12):
             down_sum -= up
     rsi = (up_sum/13*100) / ((up_sum/13)+(down_sum/13)) - 50
     rsi_13day.append(rsi)
-y4 = rsi_13day[len(rsi_13day)-30:]
+y4 = rsi_13day[len(rsi_13day)-rangeday:]
 plt.plot(x, y4)
 
 
-# In[5]:
+# In[24]:
 
 
 #MACDの作成
@@ -85,11 +97,11 @@ for i in range(4, count_d):
     macd_5day.append(float(deviation_stock5_13[i-4] + deviation_stock5_13[i-3] +deviation_stock5_13[i-2] +deviation_stock5_13[i-1] +deviation_stock5_13[i])/ float(5))
 for i in range(0, count_d-4):
     macd.append(float(deviation_stock5_13[i+4] - macd_5day[i])/float(macd_5day[i]))
-y5 = macd[len(macd)-30:]
+y5 = macd[len(macd)-rangeday:]
 plt.plot(x, y5)
 
 
-# In[7]:
+# In[25]:
 
 
 #テクニカル分析のATR
@@ -114,11 +126,11 @@ for i in range(0, count_s-1-14):
     for s in range(0, 14):
         sum_14 += tr[i+s]
     atr_14day.append(float(sum_14)/float(14))
-y6 = atr_14day[len(atr_14day)-30:]
+y6 = atr_14day[len(atr_14day)-rangeday:]
 plt.plot(x, y6)
 
 
-# In[8]:
+# In[26]:
 
 
 #テクニカル分析のモメンタム
@@ -126,11 +138,11 @@ momentum_10day = []
 #Momentumは当日の終値からn日前の終値を引くだけ
 for i in range(0, count_s-1-10):
     momentum_10day.append(float(float(stock_data.loc[i+10, ['調整後終値']])-float(stock_data.loc[i, ['調整後終値']])))
-y7 = momentum_10day[len(momentum_10day)-30:]
+y7 = momentum_10day[len(momentum_10day)-rangeday:]
 plt.plot(x, y7)
 
 
-# In[9]:
+# In[27]:
 
 
 # 株価の上昇率を算出、おおよそ-1.0～1.0の範囲に収まるように調整
@@ -138,11 +150,11 @@ modified_data = []
 
 for i in range(1,count_s):
     modified_data.append((float(stock_data.loc[i, ['調整後終値']])*100 / float(stock_data.loc[i-1, ['調整後終値']]))-100)
-y8 = modified_data[len(modified_data)-30:]
+y8 = modified_data[len(modified_data)-rangeday:]
 plt.plot(x, y8)
 
 
-# In[10]:
+# In[28]:
 
 
 #以下はパラボリックを求めるプログラム
@@ -223,11 +235,11 @@ for i in range(5, count_s):
         Min = max(takane)
         trend_frag = 1
         count = 0
-y9 = SAR[len(SAR)-30:]
+y9 = SAR[len(SAR)-rangeday:]
 plt.plot(x, y9)
 
 
-# In[14]:
+# In[48]:
 
 
 #以下DMIを求めるプログラム
@@ -309,15 +321,15 @@ for i in range(0, len(DX)-7):
         else:
             sum_DX += DX[i+s]
     ADX.append(float(sum_DX) / float(7-flag_count))
-y10 = plusDI[len(plusDI)-30:]
-y11 = minusDI[len(minusDI)-30:]
-y12 = ADX[len(ADX)-30:]
+y10 = plusDI[len(plusDI)-rangeday:]
+y11 = minusDI[len(minusDI)-rangeday:]
+y12 = ADX[len(ADX)-rangeday:]
 plt.plot(x, y10, color='blue')
 plt.plot(x, y11, color='red')
-plt.plot(x, y12, color='yellow')
+plt.plot(x, y12, color='green')
 
 
-# In[15]:
+# In[30]:
 
 
 #以下はストキャスティクスの計算を行う。
@@ -352,14 +364,31 @@ for i in range(0, len(FpD)-3):
         temp += float(FpD[i+j])
     SpD.append(temp / float(3))
     
-y13 = FpK[len(FpK)-30:]
-y14 = SpD[len(SpD)-30:]
+y13 = FpK[len(FpK)-rangeday:]
+y14 = SpD[len(SpD)-rangeday:]
 plt.plot(x, y13, color='blue')
 plt.plot(x, y14, color='red')
 
 
-# In[ ]:
+# In[92]:
 
 
+x = [0, 1, 2, 3, 4, 5, 6]
+y1 = [1.3, 2.5, 2.3, 4.8, 1.3, 0.4, 5.0] 
+y2 = [3.4, 5.7, 1.5, 4.4, 6.7, 3.3, 3.1]
 
+fig, ax = plt.subplots()
+ax.plot(x, y1, x, y2, color='black')      
+for t in range(0, len(x)-1):
+    x2 = np.arange(t, t+1.01, 0.01) 
+    m_y11 = (y1[t+1]-y1[t])
+    b_y11 = -m_y11*x[t] + y1[t]
+    m_y21 = (y2[t+1]-y2[t])
+    b_y21 = -m_y21*x[t] + y2[t]
+    y11 = m_y11*x2 + b_y11
+    y21 = m_y21*x2 + b_y21
+    ax.fill_between(x2, y11, y21, where=y21 >y11, facecolor='yellow', alpha=0.5)
+    ax.fill_between(x2, y11, y21, where=y21 <=y11, facecolor='red', alpha=0.5)
+ax.set_title('Fill Between')
+plt.show()
 
