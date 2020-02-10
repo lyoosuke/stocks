@@ -1,10 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[7]:
-
-
-get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('matplotlib', 'inline')
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,8 +14,6 @@ print(x)
 y = stock_data.loc[(count_s-rangeday):, ['終値']]
 plt.plot(x, y)
 
-
-# In[11]:
 
 
 #解析銘柄の13日平均移動線を求める
@@ -64,8 +56,6 @@ for t in range(0, len(x)-1):
     ax.fill_between(x2, y21, y31, where=y21 >y31, facecolor='blue', alpha=0.8)
 
 
-# In[23]:
-
 
 #RSIの作成
 rsi_13day = []
@@ -83,8 +73,6 @@ for i in range(0, count_s-12):
 y4 = rsi_13day[len(rsi_13day)-rangeday:]
 plt.plot(x, y4)
 
-
-# In[24]:
 
 
 #MACDの作成
@@ -106,8 +94,6 @@ for i in range(0, count_d-4):
 y5 = macd[len(macd)-rangeday:]
 plt.plot(x, y5)
 
-
-# In[25]:
 
 
 #テクニカル分析のATR
@@ -136,9 +122,6 @@ y6 = atr_14day[len(atr_14day)-rangeday:]
 plt.plot(x, y6)
 
 
-# In[26]:
-
-
 #テクニカル分析のモメンタム
 momentum_10day = []
 #Momentumは当日の終値からn日前の終値を引くだけ
@@ -148,8 +131,6 @@ y7 = momentum_10day[len(momentum_10day)-rangeday:]
 plt.plot(x, y7)
 
 
-# In[27]:
-
 
 # 株価の上昇率を算出、おおよそ-1.0～1.0の範囲に収まるように調整
 modified_data = []
@@ -158,10 +139,6 @@ for i in range(1,count_s):
     modified_data.append((float(stock_data.loc[i, ['調整後終値']])*100 / float(stock_data.loc[i-1, ['調整後終値']]))-100)
 y8 = modified_data[len(modified_data)-rangeday:]
 plt.plot(x, y8)
-
-
-# In[28]:
-
 
 #以下はパラボリックを求めるプログラム
 #AF(Acceleration Factor)：加速因数
@@ -243,9 +220,6 @@ for i in range(5, count_s):
         count = 0
 y9 = SAR[len(SAR)-rangeday:]
 plt.plot(x, y9)
-
-
-# In[48]:
 
 
 #以下DMIを求めるプログラム
@@ -375,29 +349,3 @@ y14 = SpD[len(SpD)-rangeday:]
 plt.plot(x, y13, color='blue')
 plt.plot(x, y14, color='red')
 
-
-# In[5]:
-
-
-x = [0, 1, 2, 3, 4, 5, 6]
-y1 = [1.3, 2.5, 2.3, 4.8, 1.3, 0.4, 5.0] 
-y2 = [3.4, 5.7, 1.5, 4.4, 6.7, 3.3, 3.1]
-
-fig, ax = plt.subplots()
-ax.plot(x, y1, x, y2, color='black')      
-for t in range(0, len(x)-1):
-    x2 = np.arange(t, t+1.01, 0.01) 
-    m_y11 = (y1[t+1]-y1[t])
-    b_y11 = -m_y11*x[t] + y1[t]
-    m_y21 = (y2[t+1]-y2[t])
-    b_y21 = -m_y21*x[t] + y2[t]
-    y11 = m_y11*x2 + b_y11
-    y21 = m_y21*x2 + b_y21
-    intersection_x = -(b_y11 - b_y21) / (m_y11 - m_y21)
-    intersection_y = m_y11*intersection_x + b_y11
-    if (t <= intersection_x and intersection_x <= t+1):
-        ax.plot(intersection_x, intersection_y, marker='o', markersize=10, color='green')
-    ax.fill_between(x2, y11, y21, where=y21 >y11, facecolor='yellow', alpha=0.5)
-    ax.fill_between(x2, y11, y21, where=y21 <=y11, facecolor='red', alpha=0.5)
-ax.set_title('Fill Between')
-plt.show()
