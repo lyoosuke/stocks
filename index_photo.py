@@ -5,25 +5,19 @@ import matplotlib.pyplot as plt
 import mpl_finance
 import seaborn as sns
 stock_data = pd.read_csv("1321_tech4.csv", encoding="shift-jis")
-print(stock_data)
-print(stock_data.shape)
 count_s = len(stock_data)
 rangeday = 30
+max_day = count_s - 16
 x = np.arange(0,rangeday, 1)
-print(x)
-y = stock_data.loc[(count_s-rangeday):, ['終値']]
-plt.plot(x, y)
-
-
 
 #解析銘柄の13日平均移動線を求める
 average_13day = []
+fig = plt.figure()
 for i in range(12,count_s-1):
     sum13 = 0
     for s in range(0, 13):
         sum13 += float(stock_data.loc[i-s, ['調整後終値']])
     average_13day.append(float(sum13)/float(13))
-y2 = average_13day[(len(average_13day)-rangeday):]
 #解析銘柄の5日平均移動線を求める
 average_5day = []
 for i in range(12,count_s-1):
@@ -31,30 +25,34 @@ for i in range(12,count_s-1):
     for s in range(0, 5):
         sum5 += float(stock_data.loc[i-s, ['調整後終値']])
     average_5day.append(float(sum5)/float(5))
-y3 = average_5day[(len(average_5day)-rangeday):]
-plt.rcParams['xtick.direction'] = 'in'
-plt.rcParams['ytick.direction'] = 'in'
-fig, ax= plt.subplots()
-ax.plot(x, y, color='green')
-ax.plot(x, y2, color='black')
-ax.plot(x, y3, color='black')
-for t in range(0, len(x)-1):
-    x2 = np.arange(t, t+1, 0.01)
-    m_y21 = (y2[t+1]-y2[t])
-    b_y21 = -m_y21*x[t] + y2[t]
-    m_y31 = (y3[t+1]-y3[t])
-    b_y31 = -m_y31*x[t] + y3[t]
-    y21 = m_y21*x2 + b_y21
-    y31 = m_y31*x2 + b_y31
-    intersection_x = -(b_y21 - b_y31) / (m_y21 - m_y31)
-    intersection_y = m_y21*intersection_x + b_y21
-    if (t <= intersection_x and intersection_x <= t+1 and y2[t]>y3[t]):
-        ax.plot(intersection_x, intersection_y, marker='o', markersize=7, color='red')
-    elif (t <= intersection_x and intersection_x <= t+1 and y2[t]<y3[t]):
-        ax.plot(intersection_x, intersection_y, marker='o', markersize=7, color='blue')
-    ax.fill_between(x2, y21, y31, where=y21 <=y31, facecolor='red', alpha=0.8)
-    ax.fill_between(x2, y21, y31, where=y21 >y31, facecolor='blue', alpha=0.8)
-
+for i in range(rangeday, max_day):
+    y = stock_data.loc[i-rangeday+16:i+15, ['調整後終値']]
+    y2 = average_13day[i-rangeday+4:i+4]
+    y3 = average_5day[i-rangeday+4:i+4]
+    plt.rcParams['xtick.direction'] = 'in'
+    plt.rcParams['ytick.direction'] = 'in'
+    fig, ax= plt.subplots()
+    ax.tick_params(labelbottom=False,labelleft=False,labelright=False,labeltop=False)
+    ax.plot(x, y, color='green')
+    ax.plot(x, y2, color='black')
+    ax.plot(x, y3, color='black')
+    for t in range(0, len(x)-1):
+        x2 = np.arange(t, t+1, 0.01)
+        m_y21 = (y2[t+1]-y2[t])
+        b_y21 = -m_y21*x[t] + y2[t]
+        m_y31 = (y3[t+1]-y3[t])
+        b_y31 = -m_y31*x[t] + y3[t]
+        y21 = m_y21*x2 + b_y21
+        y31 = m_y31*x2 + b_y31
+        intersection_x = -(b_y21 - b_y31) / (m_y21 - m_y31)
+        intersection_y = m_y21*intersection_x + b_y21
+        if (t <= intersection_x and intersection_x <= t+1 and y2[t]>y3[t]):
+            ax.plot(intersection_x, intersection_y, marker='o', markersize=7, color='red')
+        elif (t <= intersection_x and intersection_x <= t+1 and y2[t]<y3[t]):
+            ax.plot(intersection_x, intersection_y, marker='o', markersize=7, color='blue')
+        ax.fill_between(x2, y21, y31, where=y21 <=y31, facecolor='red', alpha=0.8)
+        ax.fill_between(x2, y21, y31, where=y21 >y31, facecolor='blue', alpha=0.8)
+    #fig.savefig(str(i) + "img.png")
 
 
 #RSIの作成
