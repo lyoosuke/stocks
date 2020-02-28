@@ -37,7 +37,7 @@ answers_n = []
 #(["rsi_13day[i+1]", "rsi_13day[i+2]", "deviation_stock[i+2]", "deviation_stock[i+3]", "macd[i-1]",
 #"atr[i+1]", "momentum[i+6]", "momentum_1ago[i+4]", "momentum_1ago[i+5]", "parabolic[i+10]",
 #"parabolic[i+11]", "DMI[i+2]", "modified_data[i+13]", "modified_data[i+14]", "stochastics[i+2]"])
-#feature_list = [14]
+#feature_list = [0]
 feature_list = [i for i in range(0, 15)]
 
 with open("successive2.csv", "r") as file:
