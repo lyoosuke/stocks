@@ -141,10 +141,7 @@ for s in range(30, 31):
         #for i in range(len(feature)):
             #print(str(i + 1) + "   " + str(label[indices[i]]) + "   " + str(feature[indices[i]]))
 
-        #print("TP = " + str(TP))
-        #print("FP = " + str(FP))
-        #print("FN = " + str(FN))
-        #print("TN = " + str(TN))
+
         precision = TP / (TP + FP)
         recall = TP / (TP + FN)
         f_score = (2 * recall * precision) / (recall + precision)
