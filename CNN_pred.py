@@ -10,8 +10,8 @@ image_reshape = tf.reshape(image_float, [-1, 307200])
 print(image_reshape)
 
 
-X_train = image_reshape[0:2001]
-X_test = image_reshape[2001:2403]
+X_train = image_reshape[0:2175]
+X_test = image_reshape[2175:2403]
 X_train /= 255
 X_test /= 255
 
@@ -19,8 +19,8 @@ X_test /= 255
 
 Y = pd.read_csv('modified_answer_9613.csv', encoding="shift-jis")
 print(Y)
-y_train = Y[0:2001]
-y_test = Y[2001:2403]
+y_train = Y[0:2175]
+y_test = Y[2175:2403]
 y_train = np_utils.to_categorical(y_train, 2)
 y_test = np_utils.to_categorical(y_test, 2)
 print(y_train)
