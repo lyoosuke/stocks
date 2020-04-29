@@ -6,38 +6,57 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
 from keras.optimizers import Adam
 #sess = tf.compat.v1.Session()
-kobetu = "9613"
+kobetu_list = ["4502", "4506", "4689", "4902", "6752", "6773", "7004", "8028", "9613", "9735"]
 image = []
-for i in range(30, 2432):
-    png = tf.io.read_file(kobetu + '_average_10_' + str(i) + '.png')
-    image.append(tf.image.decode_png(png, channels=1, dtype=tf.uint8))
-image_float = tf.cast(image,dtype=tf.float32)
-print(image_float)
-image_reshape = tf.reshape(image_float, [-1, 3072])
-print(image_reshape)
-
-
-X_train = image_reshape[0:2175]
-X_test = image_reshape[2175:2403]
-X_train /= 255
-X_test /= 255
-
-stock_data = pd.read_csv(kobetu + "_tech4.csv", encoding="shift-jis")
-Y = []
-answers = []
-for i in range(30,2432):
-    Y.append((float(stock_data.loc[i, ['調整後終値']])*100 / float(stock_data.loc[i-1, ['調整後終値']]))-100)
-for i in range(30,2432):
-    if Y[i-30]>0:
-        answers.append(1)
+X_train = []
+X_test = []
+y_train = []
+y_test = []
+for kobetu in kobetu_list:
+    for i in range(30, 2432):
+        png = tf.io.read_file(kobetu + '_average_10_' + str(i) + '.png')
+        image.append(tf.image.decode_png(png, channels=1, dtype=tf.uint8))
+    image_float = tf.cast(image,dtype=tf.float32)
+    #print(image_float)
+    image_reshape = tf.reshape(image_float, [-1, 3072])
+    #print(image_reshape)
+    X1 = image_reshape[0:2175]/255
+    X2 = image_reshape[2175:2402]/255
+    if kobetu == "4502":
+        X_train = X1
+        X_test = X2
     else:
-        answers.append(0)
-#Y = pd.read_csv('modified_answer_9613.csv', encoding="shift-jis")
-print(Y)
-y_train = answers[0:2175]
-y_test = answers[2175:2403]
+        X_train = tf.concat([X_train, X1], 0)
+        X_test = tf.concat([X_test, X2], 0)
+
+    #X_train.append(image_reshape[0:2175]/255)
+    #X_test.append(image_reshape[2175:2403]/255)
+    #X_train /= 255
+    #X_test /= 255
+
+    print(X_train)
+    print(X_test)
+
+    stock_data = pd.read_csv(kobetu + "_tech4.csv", encoding="shift-jis")
+    Y = []
+    answers = []
+    for i in range(30+17,2432+17):
+        Y.append((float(stock_data.loc[i, ['調整後終値']])*100 / float(stock_data.loc[i-1, ['調整後終値']]))-100)
+    for i in range(30,2432):
+        if Y[i-30]>0:
+            answers.append(1)
+        else:
+            answers.append(0)
+    #Y = pd.read_csv('modified_answer_9613.csv', encoding="shift-jis")
+    print(Y)
+    y_train.append(answers[0:2175])
+    y_test.append(answers[2175:2402])
 y_train = np_utils.to_categorical(y_train, 2)
+y_train = y_train.reshape(-1, 2)
+y_train = tf.convert_to_tensor(y_train, np.float32)
 y_test = np_utils.to_categorical(y_test, 2)
+y_test = y_test.reshape(-1, 2)
+y_test = tf.convert_to_tensor(y_test, np.float32)
 print(y_train)
 print(y_test)
 
