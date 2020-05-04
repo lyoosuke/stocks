@@ -7,6 +7,7 @@ from keras.layers.core import Dense, Dropout, Activation
 from keras.optimizers import Adam
 #sess = tf.compat.v1.Session()
 kobetu_list = ["4502", "4506", "4689", "4902", "6752", "6773", "7004", "8028", "9613", "9735"]
+check_meigara = "4502"
 image = []
 X_train = []
 X_test = []
@@ -22,12 +23,12 @@ for kobetu in kobetu_list:
     #print(image_reshape)
     X1 = image_reshape[0:2175]/255
     X2 = image_reshape[2175:2402]/255
-    if kobetu == "4502":
+    if kobetu == check_meigara:
         X_train = X1
         X_test = X2
-    else:
-        X_train = tf.concat([X_train, X1], 0)
-        X_test = tf.concat([X_test, X2], 0)
+    #else:
+        #X_train = tf.concat([X_train, X1], 0)
+        #X_test = tf.concat([X_test, X2], 0)
 
     #X_train.append(image_reshape[0:2175]/255)
     #X_test.append(image_reshape[2175:2403]/255)
@@ -50,7 +51,8 @@ for kobetu in kobetu_list:
     #Y = pd.read_csv('modified_answer_9613.csv', encoding="shift-jis")
     print(Y)
     y_train.append(answers[0:2175])
-    y_test.append(answers[2175:2402])
+    if kobetu == check_meigara:
+        y_test.append(answers[2175:2402])
 y_train = np_utils.to_categorical(y_train, 2)
 y_train = y_train.reshape(-1, 2)
 y_train = tf.convert_to_tensor(y_train, np.float32)
